@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Brush Tool</title>
+
+  <!-- p5.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    #sketch-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    input,
+    button {
+      z-index: 10;
+      position: absolute;
+      font-size: 14px;
+      padding: 6px 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sketch Container -->
+  <div id="sketch-container"></div>
+
+  <script>
+    let brushImg;
+    let fileInput;
+    let brushSize = 60;
+
+    let savePNGButton;
+    let saveJPGButton;
+
+    function setup() {
+      let canvas = createCanvas(window.innerWidth, window.innerHeight);
+
+      // Canvas in Container einfügen
+      canvas.parent("sketch-container");
+
+      background(255);
+
+      // Bild Upload
+      fileInput = createFileInput(handleFile);
+      fileInput.position(10, 10);
+
+      // Export PNG
+      savePNGButton = createButton("Export PNG");
+      savePNGButton.position(10, 40);
+      savePNGButton.mousePressed(savePNG);
+
+      // Export JPG
+      saveJPGButton = createButton("Export JPG");
+      saveJPGButton.position(120, 40);
+      saveJPGButton.mousePressed(saveJPG);
+
+      textSize(14);
+    }
+
+    function draw() {
+      fill(0);
+      noStroke();
+      text("upload an image and draw with it", 10, 90);
+
+      if (mouseIsPressed && brushImg) {
+        imageMode(CENTER);
+        image(brushImg, mouseX, mouseY, brushSize, brushSize);
+      }
+    }
+
+    // Bild laden
+    function handleFile(file) {
+      if (file.type === "image") {
+        brushImg = loadImage(file.data);
+      }
+    }
+
+    // Pinselgröße mit Mausrad
+    function mouseWheel(event) {
+      brushSize += event.delta * -0.05;
+      brushSize = constrain(brushSize, 10, 300);
+    }
+
+    // Export PNG
+    function savePNG() {
+      saveCanvas("drawing", "png");
+    }
+
+    // Export JPG
+    function saveJPG() {
+      saveCanvas("drawing", "jpg");
+    }
+
+    // Responsive Canvas
+    function windowResized() {
+      resizeCanvas(window.innerWidth, window.innerHeight);
+    }
+  </script>
+</body>
+</html>
