@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Brush Tool</title>
+  <title>img_paint</title>
 
-  <!-- p5.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
 
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       overflow: hidden;
       background: #ffffff;
-      font-family: Arial, sans-serif;
+      user-select: none;
     }
 
     #sketch-container {
@@ -27,90 +27,497 @@
       display: block;
     }
 
-    input,
-    button {
-      z-index: 10;
+    #top-bar {
       position: absolute;
-      font-size: 14px;
-      padding: 6px 10px;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 0;
+      z-index: 10;
+    }
+
+    #top-bar button,
+    #upload-button,
+    #bottom-bar button,
+    #github-button {
+      height: 36px;
+      box-sizing: border-box;
+      border: 1px solid #ffffff;
+      border-radius: 0;
+      background: #000000;
+      color: #888888;
+      font-family:
+        "Authentic Sans",
+        Arial,
+        Helvetica,
+        sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1;
+      padding: 0 15px;
+      cursor: pointer;
+      white-space: nowrap;
+      text-decoration: none;
+      transition:
+        background 0.1s ease,
+        color 0.1s ease;
+    }
+
+    #top-bar button:hover,
+    #upload-button:hover,
+    #bottom-bar button:hover,
+    #github-button:hover {
+      background: #222222;
+      color: #aaaaaa;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    #upload-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+    }
+
+    #background-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 10px 16px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #d0d0d0;
+      font-family:
+        "Franklin Gothic",
+        "Arial Narrow",
+        Arial,
+        sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1.1;
+      text-align: center;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #bottom-bar {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 0;
+      z-index: 10;
+    }
+
+    #github-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #tutorial-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.18);
+      z-index: 20;
+    }
+
+    #tutorial-popup {
+      width: min(520px, calc(100vw - 40px));
+      box-sizing: border-box;
+      background: #000000;
+      color: #888888;
+      border: 1px solid #ffffff;
+      font-family:
+        "Authentic Sans",
+        Arial,
+        Helvetica,
+        sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    #tutorial-title {
+      padding: 14px 16px;
+      border-bottom: 1px solid #ffffff;
+      color: #ffffff;
+      font-size: 16px;
+    }
+
+    #tutorial-content {
+      padding: 18px 16px;
+    }
+
+    .tutorial-step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      column-gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tutorial-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .tutorial-number {
+      color: #ffffff;
+    }
+
+    .tutorial-step-title {
+      color: #d0d0d0;
+      margin-bottom: 3px;
+    }
+
+    .tutorial-step-text {
+      color: #888888;
+    }
+
+    #close-tutorial {
+      width: 100%;
+      height: 36px;
+      box-sizing: border-box;
+      border: 0;
+      border-top: 1px solid #ffffff;
+      border-radius: 0;
+      background: #000000;
+      color: #888888;
+      font-family:
+        "Authentic Sans",
+        Arial,
+        Helvetica,
+        sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      cursor: pointer;
+      transition:
+        background 0.1s ease,
+        color 0.1s ease;
+    }
+
+    #close-tutorial:hover {
+      background: #222222;
+      color: #aaaaaa;
     }
   </style>
 </head>
 
 <body>
-  <!-- Sketch Container -->
-  <div id="sketch-container"></div>
+  <div id="sketch-container">
+
+    <div id="top-bar">
+      <label id="upload-button" for="file-input">
+        Upload Image
+      </label>
+
+      <input
+        id="file-input"
+        type="file"
+        accept="image/*"
+      />
+
+      <button id="save-png">
+        Export PNG
+      </button>
+
+      <button id="save-jpg">
+        Export JPG
+      </button>
+    </div>
+
+    <div id="background-message">
+      upload an image
+    </div>
+
+    <div id="bottom-bar">
+      <button id="tutorial-button">
+        Tutorial
+      </button>
+
+      <a
+        id="github-button"
+        href="https://github.com/moduldesign/img_paint.git"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub
+      </a>
+    </div>
+
+    <div id="tutorial-overlay">
+      <div id="tutorial-popup">
+        <div id="tutorial-title">
+          Tutorial
+        </div>
+
+        <div id="tutorial-content">
+          <div class="tutorial-step">
+            <div class="tutorial-number">01</div>
+            <div>
+              <div class="tutorial-step-title">Upload an image</div>
+              <div class="tutorial-step-text">
+                Choose an image using the Upload Image button. This image becomes your brush.
+              </div>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="tutorial-number">02</div>
+            <div>
+              <div class="tutorial-step-title">Draw</div>
+              <div class="tutorial-step-text">
+                Press and hold the left mouse button, then move your mouse to draw with the image.
+              </div>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="tutorial-number">03</div>
+            <div>
+              <div class="tutorial-step-title">Change brush size</div>
+              <div class="tutorial-step-text">
+                Use your scroll wheel to increase or decrease the brush's size.
+              </div>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="tutorial-number">04</div>
+            <div>
+              <div class="tutorial-step-title">Export</div>
+              <div class="tutorial-step-text">
+                Use Export PNG or Export JPG to save your drawing in your preferred format.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="close-tutorial">
+          Close
+        </button>
+      </div>
+    </div>
+
+  </div>
 
   <script>
     let brushImg;
-    let fileInput;
     let brushSize = 60;
-
-    let savePNGButton;
-    let saveJPGButton;
+    let isDrawing = false;
 
     function setup() {
-      let canvas = createCanvas(window.innerWidth, window.innerHeight);
+      let canvas = createCanvas(
+        window.innerWidth,
+        window.innerHeight
+      );
 
-      // Canvas in Container einfügen
       canvas.parent("sketch-container");
 
       background(255);
 
-      // Bild Upload
-      fileInput = createFileInput(handleFile);
-      fileInput.position(10, 10);
+      const fileInput =
+        document.getElementById("file-input");
 
-      // Export PNG
-      savePNGButton = createButton("Export PNG");
-      savePNGButton.position(10, 40);
-      savePNGButton.mousePressed(savePNG);
+      fileInput.addEventListener(
+        "change",
+        handleFile
+      );
 
-      // Export JPG
-      saveJPGButton = createButton("Export JPG");
-      saveJPGButton.position(120, 40);
-      saveJPGButton.mousePressed(saveJPG);
+      document
+        .getElementById("save-png")
+        .addEventListener(
+          "click",
+          savePNG
+        );
 
-      textSize(14);
+      document
+        .getElementById("save-jpg")
+        .addEventListener(
+          "click",
+          saveJPG
+        );
+
+      document
+        .getElementById("close-tutorial")
+        .addEventListener(
+          "click",
+          closeTutorial
+        );
+
+      document
+        .getElementById("tutorial-button")
+        .addEventListener(
+          "click",
+          openTutorial
+        );
     }
 
     function draw() {
-      fill(0);
-      noStroke();
-      text("upload an image and draw with it", 10, 90);
-
-      if (mouseIsPressed && brushImg) {
+      if (
+        isDrawing &&
+        mouseIsPressed &&
+        mouseButton === LEFT &&
+        brushImg
+      ) {
         imageMode(CENTER);
-        image(brushImg, mouseX, mouseY, brushSize, brushSize);
+
+        image(
+          brushImg,
+          mouseX,
+          mouseY,
+          brushSize,
+          brushSize
+        );
       }
     }
 
-    // Bild laden
-    function handleFile(file) {
-      if (file.type === "image") {
-        brushImg = loadImage(file.data);
+    function handleFile(event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          loadImage(
+            e.target.result,
+            function(img) {
+              brushImg = img;
+              updateBackgroundMessage();
+            }
+          );
+        };
+
+        reader.readAsDataURL(file);
       }
     }
 
-    // Pinselgröße mit Mausrad
+    function mousePressed() {
+      if (
+        mouseButton === LEFT &&
+        brushImg &&
+        isMouseOnCanvas() &&
+        !isPointerOverInterface()
+      ) {
+        isDrawing = true;
+        updateBackgroundMessage();
+      }
+    }
+
+    function mouseReleased() {
+      if (mouseButton === LEFT) {
+        isDrawing = false;
+        updateBackgroundMessage();
+      }
+    }
+
+    function updateBackgroundMessage() {
+      const message =
+        document.getElementById("background-message");
+
+      if (!brushImg) {
+        message.textContent = "upload an image";
+        message.style.display = "block";
+        return;
+      }
+
+      if (isDrawing) {
+        message.style.display = "none";
+        return;
+      }
+
+      message.textContent =
+        "press the left mouse button and hold it to draw";
+      message.style.display = "block";
+    }
+
+    function isMouseOnCanvas() {
+      return (
+        mouseX >= 0 &&
+        mouseX <= width &&
+        mouseY >= 0 &&
+        mouseY <= height
+      );
+    }
+
+    function isPointerOverInterface() {
+      const element =
+        document.elementFromPoint(
+          window.mouseX,
+          window.mouseY
+        );
+
+      if (!element) {
+        return false;
+      }
+
+      return (
+        element.closest("#top-bar") ||
+        element.closest("#bottom-bar") ||
+        element.closest("#tutorial-overlay")
+      );
+    }
+
+    function closeTutorial() {
+      document.getElementById(
+        "tutorial-overlay"
+      ).style.display = "none";
+    }
+
+    function openTutorial() {
+      document.getElementById(
+        "tutorial-overlay"
+      ).style.display = "flex";
+    }
+
     function mouseWheel(event) {
       brushSize += event.delta * -0.05;
-      brushSize = constrain(brushSize, 10, 300);
+
+      brushSize = constrain(
+        brushSize,
+        10,
+        300
+      );
+
+      return false;
     }
 
-    // Export PNG
     function savePNG() {
-      saveCanvas("drawing", "png");
+      saveCanvas(
+        "drawing",
+        "png"
+      );
     }
 
-    // Export JPG
     function saveJPG() {
-      saveCanvas("drawing", "jpg");
+      saveCanvas(
+        "drawing",
+        "jpg"
+      );
     }
 
-    // Responsive Canvas
     function windowResized() {
-      resizeCanvas(window.innerWidth, window.innerHeight);
+      resizeCanvas(
+        window.innerWidth,
+        window.innerHeight
+      );
     }
   </script>
 </body>
